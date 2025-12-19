@@ -2,96 +2,50 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TRINEX | Super Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&family=Montserrat:wght@900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>TRINEX | Admin</title>
     <style>
-        :root { --bg: #0d0d0d; --panel: #1a1a1a; --green: #00e676; --text: #fff; --border: #333; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 260px; background: #000; padding: 20px; border-left: 1px solid var(--border); }
-        .menu-item { padding: 12px; color: #888; cursor: pointer; border-radius: 8px; margin-bottom: 5px; }
-        .menu-item.active, .menu-item:hover { background: var(--green); color: #000; }
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .table-container { background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; text-align: right; }
-        th, td { padding: 15px; border-bottom: 1px solid var(--border); }
-        .inp-field { width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; }
-        .main-btn { width: 100%; padding: 15px; background: var(--green); border: none; font-weight: bold; cursor: pointer; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--panel); padding: 30px; width: 500px; border: 1px solid var(--green); }
-        .page-section { display: none; } .page-section.active { display: block; }
+        body { background: #0d0d0d; color: #fff; font-family: sans-serif; padding: 30px; }
+        .card { background: #1a1a1a; padding: 20px; border: 1px solid #333; margin-bottom: 20px; }
+        input, select { padding: 10px; background: #000; border: 1px solid #333; color: #fff; margin: 5px; }
+        button { padding: 10px 20px; background: #00e676; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <h2 style="font-family:'Montserrat';">TRINEX <span>ERP</span></h2>
-        <div class="menu-item active" onclick="nav('dashboard')">نظرة عامة</div>
-        <div class="menu-item" onclick="nav('products')">المنتجات</div>
-        <div class="menu-item" onclick="nav('orders')">الطلبات</div>
-        <div class="menu-item" onclick="nav('settings')">الإعدادات</div>
-    </div>
-    <div class="main-content">
-        <div id="dashboard" class="page-section active">
-            <h1>لوحة القيادة</h1>
-            <div class="table-container"><h3>إحصائيات سريعة</h3><p id="stat-orders">الطلبات: جاري التحميل...</p></div>
-        </div>
-        <div id="products" class="page-section">
-            <button class="main-btn" onclick="openModal('prodModal')" style="width:auto; margin-bottom:20px;">+ إضافة منتج</button>
-            <div class="table-container"><table><thead><tr><th>الاسم</th><th>السعر</th><th>القسم</th><th>المخزون</th><th>حذف</th></tr></thead><tbody id="prod-list"></tbody></table></div>
-        </div>
-        <div id="orders" class="page-section">
-            <div class="table-container"><table><thead><tr><th>العميل</th><th>الهاتف</th><th>الإجمالي</th><th>الحالة</th></tr></thead><tbody id="order-list"></tbody></table></div>
-        </div>
-        <div id="settings" class="page-section">
-            <div class="table-container">
-                <h3>إعدادات الموقع</h3>
-                <label>نص الإعلان</label><input type="text" id="set-ann" class="inp-field">
-                <label>رابط صورة الهيرو</label><input type="text" id="set-hero" class="inp-field">
-                <button class="main-btn" onclick="saveSets()">حفظ التعديلات</button>
-            </div>
-        </div>
+    <h1>لوحة تحكم TRINEX</h1>
+    <div class="card">
+        <h3>إضافة منتج جديد</h3>
+        <input type="text" id="pName" placeholder="اسم المنتج">
+        <input type="number" id="pPrice" placeholder="السعر">
+        <input type="text" id="pImg" placeholder="اسم الصورة (hode1.jpg)">
+        <select id="pCat"><option value="winter">شتوي</option><option value="summer">صيفي</option></select>
+        <button onclick="addProduct()">نشر المنتج</button>
     </div>
 
-    <div id="prodModal" class="modal">
-        <div class="modal-content">
-            <h3>إضافة منتج جديد</h3>
-            <input type="text" id="p-name" class="inp-field" placeholder="الاسم">
-            <input type="number" id="p-price" class="inp-field" placeholder="السعر">
-            <select id="p-cat" class="inp-field"><option value="winter">شتوي</option><option value="summer">صيفي</option></select>
-            <input type="text" id="p-img" class="inp-field" placeholder="رابط الصورة">
-            <button class="main-btn" onclick="addProd()">نشر المنتج</button>
-            <button onclick="closeModal('prodModal')" style="background:none; color:red; border:none; margin-top:10px; cursor:pointer;">إلغاء</button>
-        </div>
+    <div class="card">
+        <h3>المنتجات الحالية</h3>
+        <div id="list">جاري التحميل...</div>
     </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-        const supabaseUrl = 'https://izxylyjpiksklpopprme.supabase.co';
-        const supabaseKey = 'sb_publishable_9t9BN0jRvkVa_iG6IBxXuQ_kaMmLl8F';
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const supabase = createClient('https://izxylyjpiksklpopprme.supabase.co', 'sb_publishable_9t9BN0jRvkVa_iG6IBxXuQ_kaMmLl8F');
 
-        window.nav = (id) => { document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-        window.openModal = (id) => document.getElementById(id).style.display='flex';
-        window.closeModal = (id) => document.getElementById(id).style.display='none';
+        window.addProduct = async () => {
+            const item = {
+                name: document.getElementById('pName').value,
+                price: document.getElementById('pPrice').value,
+                img: document.getElementById('pImg').value,
+                category: document.getElementById('pCat').value
+            };
+            const { error } = await supabase.from('products').insert([item]);
+            if (error) alert(error.message); else location.reload();
+        }
 
         async function load() {
-            const { data: prods } = await supabase.from('products').select('*');
-            let pLog = ""; prods.forEach(p => pLog += `<tr><td>${p.name}</td><td>${p.price}</td><td>${p.category}</td><td>${p.stock}</td><td><button onclick="delP(${p.id})" style="color:red">X</button></td></tr>`);
-            document.getElementById('prod-list').innerHTML = pLog;
-
-            const { data: ords } = await supabase.from('orders').select('*');
-            let oLog = ""; ords.forEach(o => oLog += `<tr><td>${o.customer_name}</td><td>${o.phone1}</td><td>${o.total}</td><td>${o.status}</td></tr>`);
-            document.getElementById('order-list').innerHTML = oLog;
-            document.getElementById('stat-orders').innerText = "إجمالي الطلبات: " + ords.length;
+            const { data } = await supabase.from('products').select('*');
+            document.getElementById('list').innerHTML = data.map(p => `<div>${p.name} - ${p.price} EGP <button onclick="del(${p.id})" style="background:red; padding:2px 5px;">X</button></div>`).join('');
         }
-
-        window.addProd = async () => {
-            const p = { name: document.getElementById('p-name').value, price: document.getElementById('p-price').value, category: document.getElementById('p-cat').value, img: document.getElementById('p-img').value, stock: 10 };
-            await supabase.from('products').insert([p]); alert("تم!"); location.reload();
-        }
-        window.delP = async (id) => { if(confirm("حذف؟")) { await supabase.from('products').delete().eq('id', id); location.reload(); } }
-        window.saveSets = async () => { await supabase.from('settings').upsert({ id: 'general', announcement: document.getElementById('set-ann').value, heroImg: document.getElementById('set-hero').value }); alert("تم الحفظ"); }
-
+        window.del = async (id) => { await supabase.from('products').delete().eq('id', id); location.reload(); }
         load();
     </script>
 </body>
