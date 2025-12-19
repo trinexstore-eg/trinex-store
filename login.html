@@ -2,45 +2,84 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TRINEX | Access</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRINEX | Login Access</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .box { background: #111; padding: 40px; border: 1px solid #333; text-align: center; width: 350px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #00e676; border: none; font-weight: bold; cursor: pointer; }
+        :root { --bg: #000; --green: #00e676; --panel: #111; --text: #fff; --error: #ff3333; }
+        body { margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background: url('hode1.jpg') no-repeat center center/cover; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(3px); }
+        .login-container { position: relative; z-index: 2; background: var(--panel); width: 400px; max-width: 90%; padding: 40px; border-radius: 10px; border: 1px solid #333; box-shadow: 0 0 50px rgba(0,0,0,0.8); text-align: center; animation: zoomIn 0.5s ease; }
+        .brand-logo { font-size: 2rem; font-weight: 900; color: #fff; letter-spacing: 3px; margin-bottom: 5px; display: block; text-decoration: none; }
+        .sub-text { color: #666; font-size: 0.8rem; margin-bottom: 30px; display: block; }
+        .toggle-box { display: flex; background: #000; padding: 5px; border-radius: 30px; margin-bottom: 30px; border: 1px solid #222; position: relative; }
+        .toggle-btn { flex: 1; padding: 10px; border: none; background: none; color: #666; font-weight: bold; cursor: pointer; border-radius: 25px; transition: 0.3s; z-index: 2; }
+        .toggle-btn.active { color: #000; }
+        .slide-bg { position: absolute; top: 5px; left: 5px; width: 50%; height: calc(100% - 10px); background: var(--green); border-radius: 25px; transition: 0.3s; z-index: 1; }
+        .form-box { display: none; } .form-box.active { display: block; animation: fadeIn 0.5s ease; }
+        .input-group { position: relative; margin-bottom: 15px; text-align: left; }
+        .input-group i { position: absolute; top: 15px; left: 15px; color: #666; }
+        .input-group input { width: 100%; padding: 15px 15px 15px 45px; background: #000; border: 1px solid #333; color: #fff; font-family: 'Montserrat'; border-radius: 5px; transition: 0.3s; box-sizing: border-box; }
+        .input-group input:focus { border-color: var(--green); }
+        .main-btn { width: 100%; padding: 15px; background: var(--green); color: #000; font-weight: 900; border: none; border-radius: 5px; cursor: pointer; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
+        .main-btn:hover { background: #fff; transform: translateY(-2px); }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>TRINEX LOGIN</h2>
-        <input type="number" id="phone" placeholder="Phone Number">
-        <input type="password" id="pass" placeholder="Password">
-        <button onclick="login()">LOGIN</button>
-        <hr>
-        <button style="background:#555;" onclick="register()">REGISTER NEW ACCOUNT</button>
+    <div class="overlay"></div>
+    <div class="login-container">
+        <a href="index.html" class="brand-logo">TRINEX</a>
+        <span class="sub-text">JOIN THE MOVEMENT</span>
+        <div class="toggle-box"><div class="slide-bg" id="slideBg"></div><button class="toggle-btn active" onclick="switchForm('login')">LOGIN</button><button class="toggle-btn" onclick="switchForm('register')">REGISTER</button></div>
+        <div id="loginForm" class="form-box active">
+            <div class="input-group"><i class="fas fa-phone"></i><input type="number" id="logPhone" placeholder="Phone Number"></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="logPass" placeholder="Password"></div>
+            <button class="main-btn" onclick="handleLogin()">ACCESS ACCOUNT</button>
+        </div>
+        <div id="registerForm" class="form-box">
+            <div class="input-group"><i class="fas fa-user"></i><input type="text" id="regName" placeholder="Full Name (Triple)"></div>
+            <div class="input-group"><i class="fas fa-phone"></i><input type="number" id="regPhone" placeholder="Phone Number"></div>
+            <div class="input-group"><i class="fas fa-map-marker-alt"></i><input type="text" id="regAddress" placeholder="Address (City, Street)"></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="regPass" placeholder="Create Password"></div>
+            <button class="main-btn" onclick="handleRegister()">CREATE ACCOUNT</button>
+        </div>
     </div>
-
     <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-        const supabase = createClient('https://izxylyjpiksklpopprme.supabase.co', 'sb_publishable_9t9BN0jRvkVa_iG6IBxXuQ_kaMmLl8F');
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        const firebaseConfig = { apiKey: "AIzaSyDpC3kyBhy-mWsYjVAHxUuy2pqg_Sh0Z8U", authDomain: "trinex-store.firebaseapp.com", projectId: "trinex-store", storageBucket: "trinex-store.firebasestorage.app", messagingSenderId: "265387866506", appId: "1:265387866506:web:1fb7786e186cf0abf43073" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        window.login = async () => {
-            const email = document.getElementById('phone').value + "@trinex.com";
-            const password = document.getElementById('pass').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message); else location.href = "index.html";
+        document.addEventListener('keydown', (e) => { if(e.key === 'Enter') { if(document.getElementById('loginForm').classList.contains('active')) handleLogin(); else handleRegister(); } });
+
+        window.handleLogin = async function() {
+            let phone = document.getElementById('logPhone').value; let pass = document.getElementById('logPass').value; let email = phone + "@trinex.com";
+            try { await signInWithEmailAndPassword(auth, email, pass); window.location.href = "index.html"; } catch(error) { alert("Error: " + error.message); }
         }
 
-        window.register = async () => {
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('pass').value;
-            const email = phone + "@trinex.com";
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) return alert(error.message);
-            
-            // إضافة للبروفايل
-            await supabase.from('profiles').insert([{ id: data.user.id, phone, full_name: "New Member" }]);
-            alert("Registered! You can login now.");
+        window.handleRegister = async function() {
+            let name = document.getElementById('regName').value; let phone = document.getElementById('regPhone').value; let address = document.getElementById('regAddress').value; let pass = document.getElementById('regPass').value;
+            if(!name || !phone || !address || !pass) { alert("Please fill all fields"); return; }
+            let email = phone + "@trinex.com";
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(userCredential.user, { displayName: name });
+                await setDoc(doc(db, "users", userCredential.user.uid), { name: name, phone: phone, address: address, password: pass, email: email, joinedAt: serverTimestamp(), ordersCount: 0 });
+                alert("Account Created! Redirecting..."); window.location.href = "index.html";
+            } catch(error) { alert("Error: " + error.message); }
+        }
+
+        window.switchForm = function(type) {
+            let bg = document.getElementById('slideBg'); let btns = document.querySelectorAll('.toggle-btn');
+            if(type === 'register') { bg.style.left = '50%'; btns[0].classList.remove('active'); btns[1].classList.add('active'); document.getElementById('loginForm').classList.remove('active'); document.getElementById('registerForm').classList.add('active'); } 
+            else { bg.style.left = '5px'; btns[1].classList.remove('active'); btns[0].classList.add('active'); document.getElementById('registerForm').classList.remove('active'); document.getElementById('loginForm').classList.add('active'); }
         }
     </script>
 </body>
